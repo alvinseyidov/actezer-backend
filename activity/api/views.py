@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from activity.models import Activity, ActivityParticipant, ActivityComment, ActivityChatMessage
@@ -17,6 +18,7 @@ class ActivityListCreateView(generics.ListCreateAPIView):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

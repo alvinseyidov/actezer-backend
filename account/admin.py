@@ -20,7 +20,7 @@ class UserImageAdmin(admin.ModelAdmin):
 
 @admin.register(Interest)
 class InterestAdmin(admin.ModelAdmin):
-    list_display = ('name', 'icon')
+    list_display = ('name', )
     search_fields = ('name',)
 
 

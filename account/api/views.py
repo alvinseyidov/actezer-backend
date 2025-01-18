@@ -127,7 +127,12 @@ class UserAPIView(RetrieveAPIView):
 
 
 
-
+class UserDetailView(RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserDetailSerializer
+    authentication_classes = [TokenAuthentication]
+    lookup_field = 'pk'
 
 class UserUpdateView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
@@ -154,7 +159,14 @@ class InterestListView(ListAPIView):
     serializer_class = InterestListSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    queryset = Interest.objects.all()
+
+    def get_queryset(self):
+        search_query = self.request.query_params.get('search', None)
+        if search_query and len(search_query) >= 2:
+            return Interest.objects.filter(name__icontains=search_query).order_by('name')[:5]
+        return Interest.objects.none()
+
+
 
 
 

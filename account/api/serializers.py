@@ -31,6 +31,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'last_name',
             'country',
             'city',
+            'map_location',
+            'map_location_address',
         )
 
     def get_token(self, user):

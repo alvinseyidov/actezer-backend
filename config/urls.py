@@ -36,3 +36,5 @@ urlpatterns += [
     path('api/core/',include('core.api.urls',namespace='core-api')),
     path('api/activity/',include('activity.api.urls',namespace='activity-api')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

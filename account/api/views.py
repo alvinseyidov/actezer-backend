@@ -162,7 +162,7 @@ class InterestListView(ListAPIView):
 
     def get_queryset(self):
         search_query = self.request.query_params.get('search', None)
-        if search_query and len(search_query) >= 2:
+        if search_query and len(search_query) >= 1:
             return Interest.objects.filter(name__icontains=search_query).order_by('name')[:5]
         return Interest.objects.none()
 

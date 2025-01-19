@@ -74,9 +74,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class InterestListSerializer(serializers.ModelSerializer):
+    icon = serializers.SerializerMethodField()
+
     class Meta:
         model = Interest
-        fields = "__all__"
+        fields = ['id', 'name', 'icon']
+
+    def get_icon(self, obj):
+        request = self.context.get('request')
+        if obj.icon:
+            return request.build_absolute_uri(obj.icon.url)
+        return None
 
 
 class UserRatingCreateSerializer(serializers.ModelSerializer):

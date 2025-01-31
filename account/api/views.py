@@ -134,7 +134,8 @@ class UserListView(ListAPIView):
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
-        return CustomUser.objects.filter(profile_image__isnull=False)
+        return CustomUser.objects.exclude(profile_image__isnull=True).exclude(profile_image="")
+
 
 class UserDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]

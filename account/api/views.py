@@ -134,6 +134,9 @@ class UserListView(ListAPIView):
     serializer_class = UserListSerializer
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self):
+        return CustomUser.objects.filter(profile_image__isnull=False)
+
 class UserDetailView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()

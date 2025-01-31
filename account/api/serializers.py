@@ -117,12 +117,12 @@ from django.utils.timezone import now
 class UserListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
-    first_image = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
     city_name = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'full_name', 'age', 'first_image', 'city_name']
+        fields = ['id', 'username', 'email', 'full_name', 'age', 'profile_image', 'city_name']
 
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip()
@@ -132,11 +132,10 @@ class UserListSerializer(serializers.ModelSerializer):
             return (now().date() - obj.birthday).days // 365
         return None
 
-    def get_first_image(self, obj):
-        first_image = obj.images.first()
+    def get_profile_image(self, obj):
         request = self.context.get('request')
-        if first_image and request:
-            return request.build_absolute_uri(first_image.image.url)
+        if obj.profile_image and request:
+            return request.build_absolute_uri(obj.profile_image.url)
         return None
 
     def get_city_name(self, obj):

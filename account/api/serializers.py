@@ -109,3 +109,35 @@ class UserRatingCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['rated_by'] = self.context['request'].user
         return super().create(validated_data)
+
+
+
+
+from django.utils.timezone import now
+class UserListSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    first_image = serializers.SerializerMethodField()
+    city_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'full_name', 'age', 'first_image', 'city_name']
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip()
+
+    def get_age(self, obj):
+        if obj.birthday:
+            return (now().date() - obj.birthday).days // 365
+        return None
+
+    def get_first_image(self, obj):
+        first_image = obj.images.first()
+        request = self.context.get('request')
+        if first_image and request:
+            return request.build_absolute_uri(first_image.image.url)
+        return None
+
+    def get_city_name(self, obj):
+        return obj.city.name if obj.city else None

@@ -33,6 +33,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'city',
             'map_location',
             'map_location_address',
+            'profile_image'
         )
 
     def get_token(self, user):

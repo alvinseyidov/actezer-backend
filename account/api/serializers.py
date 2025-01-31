@@ -33,9 +33,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'city',
             'map_location',
             'map_location_address',
-            'profile_image'
+            'profile_image',
+            'age'
         )
-
+    def get_age(self, obj):
+        if obj.birthday:
+            return (now().date() - obj.birthday).days // 365
+        return None
     def get_token(self, user):
         token, created = Token.objects.get_or_create(user=user)
         return token.key

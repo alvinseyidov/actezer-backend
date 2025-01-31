@@ -130,7 +130,6 @@ class UserAPIView(RetrieveAPIView):
 
 class UserListView(ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
     authentication_classes = [TokenAuthentication]
 

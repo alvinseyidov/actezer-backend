@@ -18,6 +18,10 @@ from activity.models import Activity, ActivityParticipant
 from rest_framework import status
 
 # Activity Views
+
+
+
+
 class ActivityListCreateView(generics.ListCreateAPIView):
     """
     API to list and create activities, filtered within user radius.
@@ -31,22 +35,22 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
         if user.map_location_point:
             try:
-                user_radius = int(user.activity_radius)  # 🔥 Ensure it's an integer
+                # 🔥 Ensure activity_radius is an integer
+                user_radius = int(user.activity_radius) if user.activity_radius else 10  # Default 10km if empty
             except ValueError:
-                user_radius = 10  # Default radius if conversion fails
+                user_radius = 10  # Default radius in case of a conversion error
 
-            # Convert user's location JSON into a Point object
-            user_location = Point(user.map_location_point['longitude'], user.map_location_point['latitude'], srid=4326)
+            # ✅ Use the existing PointField directly
+            user_location = user.map_location_point  # No need to manually create a Point
 
-            # Filter activities within the radius
+            # Filter activities within radius
             return (
                 Activity.objects.annotate(
-                    activity_point=Point('location__longitude', 'location__latitude', srid=4326),  # Convert JSON to Point
-                    distance=Distance('activity_point', user_location)  # Compute distance
+                    distance=Distance('location', user_location)  # Ensure `location` is a PointField
                 )
-                .filter(distance__lte=user_radius * 1000)  # 🔥 Ensure the radius is a number
-                .exclude(created_by=user)  # Exclude user's own activities
-                .order_by('distance')  # Optional: Sort by nearest first
+                .filter(distance__lte=user_radius * 1000)  # ✅ Converts km to meters
+                .exclude(created_by=user)  # ✅ Excludes user's own activities
+                .order_by('distance')  # ✅ Orders by nearest
             )
 
         # If user has no location set, return all activities except their own
@@ -54,6 +58,8 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        
+
 class ActivityParticipantDeleteView(DestroyAPIView):
     """
     API for a user to cancel their join request.

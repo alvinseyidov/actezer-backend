@@ -36,7 +36,7 @@ class ActivityListCreateView(generics.ListCreateAPIView):
                 user_radius = 10  # Default radius if conversion fails
 
             # Convert user's location JSON into a Point object
-            user_location = Point(user.map_location['longitude'], user.map_location['latitude'], srid=4326)
+            user_location = Point(user.map_location_point['longitude'], user.map_location_point['latitude'], srid=4326)
 
             # Filter activities within the radius
             return (

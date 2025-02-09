@@ -163,6 +163,44 @@ class UserUpdateView(UpdateAPIView):
             return Response({"message": "failed", "details": serializer.errors})
 
 
+class UserAddressUpdateView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserAddressUpdateSerializer
+    authentication_classes = [TokenAuthentication]
+    lookup_field = 'pk'
+
+    def patch(self, request, user_id):
+        user = CustomUser.objects.get(id=user_id)
+
+        # Convert JSON {'type': 'Point', 'coordinates': [longitude, latitude]} to a GEOS Point
+        if 'map_location_point' in request.data:
+            location_data = request.data['map_location_point']
+            if isinstance(location_data, dict) and 'coordinates' in location_data:
+                try:
+                    user.map_location_point = Point(location_data['coordinates'][0], location_data['coordinates'][1])
+                except Exception:
+                    return Response({"error": "Invalid coordinates format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if 'map_location_address' in request.data:
+            user.map_location_address = request.data['map_location_address']
+
+        if 'activity_radius' in request.data:
+            user.activity_radius = request.data['activity_radius']
+
+        user.save()
+        return Response({"message": "User location updated successfully."}, status=status.HTTP_200_OK)
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        else:
+            return Response({"message": "failed", "details": serializer.errors})
+
 
 
 class InterestListView(ListAPIView):

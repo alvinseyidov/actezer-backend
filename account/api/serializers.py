@@ -72,6 +72,27 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
+from rest_framework import serializers
+from django.contrib.gis.geos import Point
+from account.models import CustomUser  # Adjust import based on your project
+
+class UserAddressUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['map_location_point', 'map_location_address', 'activity_radius']
+
+    def validate_map_location_point(self, value):
+        """ Convert JSON {'type': 'Point', 'coordinates': [longitude, latitude]} to PointField """
+        if isinstance(value, dict) and 'coordinates' in value:
+            try:
+                return Point(value['coordinates'][0], value['coordinates'][1])
+            except Exception:
+                raise serializers.ValidationError("Invalid coordinates format.")
+        raise serializers.ValidationError("Invalid Point data.")
+
+
+
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

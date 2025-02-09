@@ -3,6 +3,12 @@ from .models import CustomUser, UserImage, Interest, UserRating
 
 from django.contrib.gis.db import models
 from django.contrib.gis.forms.widgets import OSMWidget
+from django.contrib.gis import admin
+from django.contrib.gis.db import models
+from django.contrib.gis.forms.widgets import OSMWidget
+from account.models import CustomUser
+
+
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'country', 'city', 'birthday', 'activity_radius', 'map_location_display')
@@ -10,7 +16,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_filter = ('country', 'city')
     ordering = ('username',)
     formfield_overrides = {
-        models.PointField: {"widget": OSMWidget(attrs={"map_width": 800, "map_height": 500})},
+        models.PointField: {"widget": OSMWidget(attrs={"map_srid": 4326, "map_width": 800, "map_height": 500})},
     }
 
     def map_location_display(self, obj):

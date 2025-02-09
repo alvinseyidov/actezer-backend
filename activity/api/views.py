@@ -28,12 +28,21 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+
         if user.map_location:
+            # Convert JSONField (latitude, longitude) into a GEOS Point object
             user_location = Point(user.map_location['longitude'], user.map_location['latitude'], srid=4326)
-            return Activity.objects.annotate(
-                distance=Distance('location', user_location)
-            ).filter(distance__lte=user.activity_radius * 1000)  # Convert km to meters
-        return Activity.objects.all()
+
+            return (
+                Activity.objects
+                .annotate(distance=Distance('location', user_location))  # Ensure 'location' is a PointField in Activity
+                .filter(distance__lte=user.activity_radius * 1000)  # Convert km to meters
+                .exclude(created_by=user)  # Exclude user's own activities
+                .order_by('distance')  # Optional: Sort by nearest first
+            )
+
+        # If the user has no location set, return all activities except their own
+        return Activity.objects.exclude(created_by=user)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

@@ -17,7 +17,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from activity.models import Activity, ActivityParticipant
 from rest_framework import status
-
+from django.db.models import Exists, OuterRef
 # Activity Views
 
 
@@ -38,31 +38,40 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
         if user.map_location_point:
             try:
-                # 🔥 Ensure activity_radius is an integer
-                user_radius = int(user.activity_radius) if user.activity_radius else 10  # Default 10km if empty
+                user_radius = int(user.activity_radius) if user.activity_radius else 10  # Default 10km
             except ValueError:
-                user_radius = 10  # Default radius in case of a conversion error
+                user_radius = 10
 
-            # ✅ Use the existing PointField directly
-            user_location = user.map_location_point  # No need to manually create a Point
+            user_location = user.map_location_point  # Directly use PointField
 
-            # 🔥 Use `activity_location` instead of `location`
-            return (
-                Activity.objects.annotate(
-                    distance=Distance('activity_location', user_location)  # ✅ Ensure `activity_location` is a PointField
-                )
-                .filter(distance__lte=user_radius * 1000)  # ✅ Converts km to meters
-                .exclude(created_by=user)  # ✅ Excludes user's own activities
-                .order_by('distance')  # ✅ Orders by nearest
+            # ✅ Check if user has a pending or accepted request
+            joined_subquery = ActivityParticipant.objects.filter(
+                activity=OuterRef('pk'),
+                user=user,
+                status='accepted'  # Adjust based on your model
             )
 
-        # If user has no location set, return all activities except their own
+            requested_subquery = ActivityParticipant.objects.filter(
+                activity=OuterRef('pk'),
+                user=user,
+                status='pending'  # Adjust based on your model
+            )
+
+            return (
+                Activity.objects.annotate(
+                    distance=Distance('activity_location', user_location),
+                    is_joined=Exists(joined_subquery),    # ✅ User has joined
+                    is_requested=Exists(requested_subquery)  # ✅ User has requested
+                )
+                .filter(distance__lte=user_radius * 1000)
+                .exclude(created_by=user)
+                .order_by('distance')
+            )
+
         return Activity.objects.exclude(created_by=user)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
-
 
 
 class ActivityParticipantDeleteView(DestroyAPIView):

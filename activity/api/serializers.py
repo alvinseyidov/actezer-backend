@@ -4,6 +4,8 @@ from activity.models import Activity, ActivityParticipant, ActivityComment, Acti
 
 class ActivitySerializer(serializers.ModelSerializer):
     created_by = serializers.ReadOnlyField(source='created_by.username')
+    is_joined = serializers.BooleanField(read_only=True)
+    is_requested = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Activity
@@ -11,8 +13,9 @@ class ActivitySerializer(serializers.ModelSerializer):
             'id', 'name', 'category', 'start_datetime', 'end_datetime', 'city',
             'address', 'activity_location', 'meeting_address', 'activity_meeting_location',
             'description', 'people_limit', 'is_public', 'status', 'created_by',
+            'is_joined', 'is_requested'  # ✅ New Fields
         ]
-        read_only_fields = ['id', 'status', 'created_by']
+        read_only_fields = ['id', 'status', 'created_by', 'is_joined', 'is_requested']
 
 
 class ActivityParticipantSerializer(serializers.ModelSerializer):

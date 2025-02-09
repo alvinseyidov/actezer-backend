@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Participant endpoints
     path('participants/request/', ActivityParticipantRequestView.as_view(), name='participant-request'),
+    path('participants/cancel/', ActivityParticipantDeleteView.as_view(), name='participant-cancel'),
     path('participants/update/<int:pk>/', ActivityParticipantUpdateStatusView.as_view(), name='participant-update-status'),
 
     # Comment endpoints

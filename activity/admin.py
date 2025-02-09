@@ -3,30 +3,22 @@ from .models import Activity, ActivityParticipant, ActivityComment, ActivityChat
 
 from django.contrib import admin
 from django.contrib.gis.admin import OSMGeoAdmin  # ✅ Use GIS Admin
+from django.contrib.gis import forms
 from activity.models import Activity
 
 
 @admin.register(Activity)
-class ActivityAdmin(OSMGeoAdmin):  # ✅ Enables Map for PointField
+class ActivityAdmin(OSMGeoAdmin):
     list_display = ('name', 'category', 'start_datetime', 'city', 'people_limit', 'status', 'created_by')
     search_fields = ('name', 'category__name', 'city__name')
     list_filter = ('city', 'status', 'category')
     ordering = ('start_datetime',)
 
-    # ✅ Show Map Widget for activity_location & activity_meeting_location
-    gis_widget_kwargs = {
-        "attrs": {
-            "default_lon": 0,  # Default longitude (adjust as needed)
-            "default_lat": 0,  # Default latitude (adjust as needed)
-            "default_zoom": 12  # Default zoom level
-        }
-    }
-
+    # ✅ Correct way to add a map widget
     formfield_overrides = {
-        'activity_location': {'widget': OSMGeoAdmin.gis_widget_class},
-        'activity_meeting_location': {'widget': OSMGeoAdmin.gis_widget_class},
+        'activity_location': {'widget': forms.OSMWidget(attrs={'default_lon': 0, 'default_lat': 0, 'default_zoom': 12})},
+        'activity_meeting_location': {'widget': forms.OSMWidget(attrs={'default_lon': 0, 'default_lat': 0, 'default_zoom': 12})},
     }
-
 
 @admin.register(ActivityParticipant)
 class ActivityParticipantAdmin(admin.ModelAdmin):

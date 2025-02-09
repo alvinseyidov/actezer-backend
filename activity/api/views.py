@@ -30,23 +30,25 @@ class ActivityListCreateView(generics.ListCreateAPIView):
         user = self.request.user
 
         if user.map_location:
-            # Convert JSONField (latitude, longitude) into a GEOS Point object
+            # Convert user's location JSON into a Point object
             user_location = Point(user.map_location['longitude'], user.map_location['latitude'], srid=4326)
 
+            # Filter activities within the radius
             return (
-                Activity.objects
-                .annotate(distance=Distance('location', user_location))  # Ensure 'location' is a PointField in Activity
+                Activity.objects.annotate(
+                    activity_point=Point('location__longitude', 'location__latitude', srid=4326),  # Convert JSON to Point
+                    distance=Distance('activity_point', user_location)  # Compute distance
+                )
                 .filter(distance__lte=user.activity_radius * 1000)  # Convert km to meters
                 .exclude(created_by=user)  # Exclude user's own activities
                 .order_by('distance')  # Optional: Sort by nearest first
             )
 
-        # If the user has no location set, return all activities except their own
+        # If user has no location set, return all activities except their own
         return Activity.objects.exclude(created_by=user)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
 
 class ActivityParticipantDeleteView(DestroyAPIView):
     """

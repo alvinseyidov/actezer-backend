@@ -62,7 +62,7 @@ class ActivityListCreateView(generics.ListCreateAPIView):
         serializer.save(created_by=self.request.user)
 
 
-        
+
 
 class ActivityParticipantDeleteView(DestroyAPIView):
     """

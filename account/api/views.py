@@ -170,8 +170,8 @@ class UserAddressUpdateView(UpdateAPIView):
     authentication_classes = [TokenAuthentication]
     lookup_field = 'pk'
 
-    def patch(self, request, user_id):
-        user = CustomUser.objects.get(id=user_id)
+    def patch(self, request, pk):
+        user = CustomUser.objects.get(id=pk)
 
         # Convert JSON {'type': 'Point', 'coordinates': [longitude, latitude]} to a GEOS Point
         if 'map_location_point' in request.data:

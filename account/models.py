@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     country = models.ForeignKey('core.Country', on_delete=models.SET_NULL, null=True, blank=True,)
     city = models.ForeignKey('core.City', on_delete=models.SET_NULL, null=True, blank=True,)
     birthday = models.DateField(blank=True, null=True)
-    map_location = models.JSONField(blank=True, null=True)  # Store latitude and longitude as JSON
+    map_location = models.PointField(geography=True, blank=True, null=True)  # Store latitude and longitude as JSON
     map_location_address = models.CharField(max_length=256,blank=True, null=True)  # Store latitude and longitude as JSON
     activity_radius = models.PositiveIntegerField(default=10)  # Radius in kilometers
     interests = models.ManyToManyField('Interest', blank=True)

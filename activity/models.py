@@ -15,9 +15,9 @@ class Activity(models.Model):
     end_datetime = models.DateTimeField(blank=True, null=True)
     city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='activities')
     address = models.TextField()
-    location = models.JSONField(blank=True, null=True)  # Store latitude and longitude as JSON
+    location = models.PointField(geography=True, blank=True, null=True)  # Store latitude and longitude as JSON
     meeting_address = models.TextField()
-    meeting_location = models.JSONField(blank=True, null=True)  # Store latitude and longitude as JSON
+    meeting_location = models.PointField(geography=True, blank=True, null=True)  # Store latitude and longitude as JSON
     description = models.TextField(blank=True, null=True)
     people_limit = models.PositiveIntegerField()
     is_public = models.BooleanField(default=True)

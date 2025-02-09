@@ -32,7 +32,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'last_name',
             'country',
             'city',
-            'map_location',
+            'map_location_point',
             'map_location_address',
             'profile_image',
             'age'

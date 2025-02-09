@@ -1,13 +1,25 @@
 from django.contrib import admin
 from .models import CustomUser, UserImage, Interest, UserRating
 
-
+from django.contrib.gis.db import models
+from django.contrib.gis.forms.widgets import OSMWidget
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'country', 'city', 'birthday', 'activity_radius')
+    list_display = ('username', 'email', 'country', 'city', 'birthday', 'activity_radius', 'map_location_display')
     search_fields = ('username', 'email', 'country__name', 'city__name')
     list_filter = ('country', 'city')
     ordering = ('username',)
+    formfield_overrides = {
+        models.PointField: {"widget": OSMWidget(attrs={"map_width": 800, "map_height": 500})},
+    }
+
+    def map_location_display(self, obj):
+        """ Show Latitude and Longitude in Admin List View """
+        if obj.map_location_point:
+            return f"({obj.map_location_point.y}, {obj.map_location_point.x})"
+        return "No Location"
+
+    map_location_display.short_description = "Map Location (Lat, Long)"
 
 
 @admin.register(UserImage)

@@ -29,9 +29,14 @@ class ActivityListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.map_location_point:
+        if user.map_location:
+            try:
+                user_radius = int(user.activity_radius)  # 🔥 Ensure it's an integer
+            except ValueError:
+                user_radius = 10  # Default radius if conversion fails
+
             # Convert user's location JSON into a Point object
-            user_location = Point(user.map_location_point['longitude'], user.map_location_point['latitude'], srid=4326)
+            user_location = Point(user.map_location['longitude'], user.map_location['latitude'], srid=4326)
 
             # Filter activities within the radius
             return (
@@ -39,7 +44,7 @@ class ActivityListCreateView(generics.ListCreateAPIView):
                     activity_point=Point('location__longitude', 'location__latitude', srid=4326),  # Convert JSON to Point
                     distance=Distance('activity_point', user_location)  # Compute distance
                 )
-                .filter(distance__lte=user.activity_radius * 1000)  # Convert km to meters
+                .filter(distance__lte=user_radius * 1000)  # 🔥 Ensure the radius is a number
                 .exclude(created_by=user)  # Exclude user's own activities
                 .order_by('distance')  # Optional: Sort by nearest first
             )
@@ -49,7 +54,6 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
 class ActivityParticipantDeleteView(DestroyAPIView):
     """
     API for a user to cancel their join request.

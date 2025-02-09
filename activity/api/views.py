@@ -29,9 +29,9 @@ class ActivityListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.map_location:
+        if user.map_location_point:
             # Convert user's location JSON into a Point object
-            user_location = Point(user.map_location['longitude'], user.map_location['latitude'], srid=4326)
+            user_location = Point(user.map_location_point['longitude'], user.map_location_point['latitude'], srid=4326)
 
             # Filter activities within the radius
             return (

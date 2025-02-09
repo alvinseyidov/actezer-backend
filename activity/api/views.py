@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import DestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from activity.models import Activity, ActivityParticipant, ActivityComment, ActivityChatMessage
@@ -68,7 +69,7 @@ class ActivityParticipantDeleteView(DestroyAPIView):
     """
     API for a user to cancel their join request.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
@@ -76,6 +77,10 @@ class ActivityParticipantDeleteView(DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         activity_id = request.query_params.get('activity')
+
+        # ✅ Log Incoming Request to Debug Issues
+        print(f"User: {request.user}, Activity ID: {activity_id}")
+
         if not activity_id:
             return Response({"error": "Activity ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -85,7 +90,6 @@ class ActivityParticipantDeleteView(DestroyAPIView):
 
         participant.delete()
         return Response({"message": "Join request canceled"}, status=status.HTTP_204_NO_CONTENT)
-
 class ActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     API to retrieve, update, or delete an activity.

@@ -93,6 +93,7 @@ class ActivityDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 # Participant Views
@@ -103,6 +104,7 @@ class ActivityParticipantRequestView(generics.CreateAPIView):
     queryset = ActivityParticipant.objects.all()
     serializer_class = ActivityParticipantSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -115,6 +117,7 @@ class ActivityParticipantUpdateStatusView(generics.UpdateAPIView):
     queryset = ActivityParticipant.objects.all()
     serializer_class = ActivityParticipantStatusSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         return ActivityParticipant.objects.filter(activity__created_by=self.request.user)
@@ -128,6 +131,7 @@ class ActivityCommentListCreateView(generics.ListCreateAPIView):
     queryset = ActivityComment.objects.all()
     serializer_class = ActivityCommentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -141,6 +145,7 @@ class ActivityChatMessageListCreateView(generics.ListCreateAPIView):
     queryset = ActivityChatMessage.objects.all()
     serializer_class = ActivityChatMessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

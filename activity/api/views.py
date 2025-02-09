@@ -22,6 +22,8 @@ from rest_framework import status
 
 
 
+
+
 class ActivityListCreateView(generics.ListCreateAPIView):
     """
     API to list and create activities, filtered within user radius.
@@ -43,10 +45,10 @@ class ActivityListCreateView(generics.ListCreateAPIView):
             # ✅ Use the existing PointField directly
             user_location = user.map_location_point  # No need to manually create a Point
 
-            # Filter activities within radius
+            # 🔥 Use `activity_location` instead of `location`
             return (
                 Activity.objects.annotate(
-                    distance=Distance('location', user_location)  # Ensure `location` is a PointField
+                    distance=Distance('activity_location', user_location)  # ✅ Ensure `activity_location` is a PointField
                 )
                 .filter(distance__lte=user_radius * 1000)  # ✅ Converts km to meters
                 .exclude(created_by=user)  # ✅ Excludes user's own activities
@@ -58,6 +60,8 @@ class ActivityListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
         
 
 class ActivityParticipantDeleteView(DestroyAPIView):

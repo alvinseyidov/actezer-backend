@@ -7,16 +7,19 @@ from django.contrib.gis import admin
 from django.contrib.gis.db import models
 from django.contrib.gis.forms.widgets import OSMWidget
 from account.models import CustomUser
-
+from django.contrib.gis import forms
+from django.contrib.gis.admin import OSMGeoAdmin
 
 @admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(OSMGeoAdmin):  # ✅ Inherit from GIS Admin for map support
     list_display = ('username', 'email', 'country', 'city', 'birthday', 'activity_radius', 'map_location_display')
     search_fields = ('username', 'email', 'country__name', 'city__name')
     list_filter = ('country', 'city')
     ordering = ('username',)
+
+    # ✅ Show Map Widget for Editing User Location in Admin
     formfield_overrides = {
-        models.PointField: {"widget": OSMWidget(attrs={"map_srid": 4326, "map_width": 800, "map_height": 500})},
+        'map_location_point': {'widget': forms.OSMWidget(attrs={'default_lon': 0, 'default_lat': 0, 'default_zoom': 12})},
     }
 
     def map_location_display(self, obj):
@@ -26,7 +29,6 @@ class CustomUserAdmin(admin.ModelAdmin):
         return "No Location"
 
     map_location_display.short_description = "Map Location (Lat, Long)"
-
 
 @admin.register(UserImage)
 class UserImageAdmin(admin.ModelAdmin):

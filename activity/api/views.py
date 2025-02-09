@@ -29,7 +29,7 @@ class ActivityListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
 
-        if user.map_location:
+        if user.map_location_point:
             try:
                 user_radius = int(user.activity_radius)  # 🔥 Ensure it's an integer
             except ValueError:

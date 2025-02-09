@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from account.models import CustomUser, Interest
 from core.models import City  # Assuming City is in core app
 
